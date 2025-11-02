@@ -1,3 +1,10 @@
+"""
+Step 6: Vendor Element Extraction
+Extracts 8 key GTM elements from vendor content using specialized AI agents.
+Runs in parallel for efficiency: offerings, case studies, testimonials, clients,
+differentiators, objections, buyer personas, and competitors.
+"""
+
 from agno.workflow.types import StepInput, StepOutput
 from agents.vendor_specialists.offerings_extractor import offerings_extractor
 from agents.vendor_specialists.case_study_extractor import case_study_extractor
@@ -7,6 +14,7 @@ from agents.vendor_specialists.customer_extractor import customer_extractor
 from agents.vendor_specialists.use_case_extractor import use_case_extractor
 from agents.vendor_specialists.persona_extractor import persona_extractor
 from agents.vendor_specialists.differentiator_extractor import differentiator_extractor
+from utils.workflow_helpers import create_error_response
 
 
 def extract_offerings(step_input: StepInput) -> StepOutput:
@@ -46,11 +54,7 @@ def extract_offerings(step_input: StepInput) -> StepOutput:
         return StepOutput(content={"offerings": [o.model_dump() for o in offerings]}, success=True)
 
     except Exception as e:
-        print(f"❌ Error extracting offerings: {str(e)}")
-        return StepOutput(
-            content={"error": str(e), "offerings": []},
-            success=False
-        )
+        return create_error_response(f"Offerings extraction failed: {str(e)}")
 
 
 def extract_case_studies(step_input: StepInput) -> StepOutput:
@@ -87,11 +91,7 @@ def extract_case_studies(step_input: StepInput) -> StepOutput:
         return StepOutput(content={"case_studies": [cs.model_dump() for cs in case_studies]}, success=True)
 
     except Exception as e:
-        print(f"❌ Error extracting case studies: {str(e)}")
-        return StepOutput(
-            content={"error": str(e), "case_studies": []},
-            success=False
-        )
+        return create_error_response(f"Case studies extraction failed: {str(e)}")
 
 
 def extract_proof_points(step_input: StepInput) -> StepOutput:
@@ -128,11 +128,7 @@ def extract_proof_points(step_input: StepInput) -> StepOutput:
         return StepOutput(content={"proof_points": [pp.model_dump() for pp in proof_points]}, success=True)
 
     except Exception as e:
-        print(f"❌ Error extracting proof points: {str(e)}")
-        return StepOutput(
-            content={"error": str(e), "proof_points": []},
-            success=False
-        )
+        return create_error_response(f"Proof points extraction failed: {str(e)}")
 
 
 def extract_value_props(step_input: StepInput) -> StepOutput:
@@ -169,11 +165,7 @@ def extract_value_props(step_input: StepInput) -> StepOutput:
         return StepOutput(content={"value_propositions": [vp.model_dump() for vp in value_props]}, success=True)
 
     except Exception as e:
-        print(f"❌ Error extracting value propositions: {str(e)}")
-        return StepOutput(
-            content={"error": str(e), "value_propositions": []},
-            success=False
-        )
+        return create_error_response(f"Value propositions extraction failed: {str(e)}")
 
 
 def extract_customers(step_input: StepInput) -> StepOutput:
@@ -210,11 +202,7 @@ def extract_customers(step_input: StepInput) -> StepOutput:
         return StepOutput(content={"reference_customers": [c.model_dump() for c in customers]}, success=True)
 
     except Exception as e:
-        print(f"❌ Error extracting customers: {str(e)}")
-        return StepOutput(
-            content={"error": str(e), "reference_customers": []},
-            success=False
-        )
+        return create_error_response(f"Reference customers extraction failed: {str(e)}")
 
 
 def extract_use_cases(step_input: StepInput) -> StepOutput:
@@ -251,11 +239,7 @@ def extract_use_cases(step_input: StepInput) -> StepOutput:
         return StepOutput(content={"use_cases": [uc.model_dump() for uc in use_cases]}, success=True)
 
     except Exception as e:
-        print(f"❌ Error extracting use cases: {str(e)}")
-        return StepOutput(
-            content={"error": str(e), "use_cases": []},
-            success=False
-        )
+        return create_error_response(f"Use cases extraction failed: {str(e)}")
 
 
 def extract_personas(step_input: StepInput) -> StepOutput:
@@ -292,11 +276,7 @@ def extract_personas(step_input: StepInput) -> StepOutput:
         return StepOutput(content={"target_personas": [p.model_dump() for p in personas]}, success=True)
 
     except Exception as e:
-        print(f"❌ Error extracting personas: {str(e)}")
-        return StepOutput(
-            content={"error": str(e), "target_personas": []},
-            success=False
-        )
+        return create_error_response(f"Target personas extraction failed: {str(e)}")
 
 
 def extract_differentiators(step_input: StepInput) -> StepOutput:
@@ -333,8 +313,4 @@ def extract_differentiators(step_input: StepInput) -> StepOutput:
         return StepOutput(content={"differentiators": [d.model_dump() for d in differentiators]}, success=True)
 
     except Exception as e:
-        print(f"❌ Error extracting differentiators: {str(e)}")
-        return StepOutput(
-            content={"error": str(e), "differentiators": []},
-            success=False
-        )
+        return create_error_response(f"Differentiators extraction failed: {str(e)}")

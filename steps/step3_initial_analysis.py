@@ -6,7 +6,7 @@ Runs in parallel for both homepages.
 
 from agno.workflow.types import StepInput, StepOutput
 from agents.homepage_analyst import homepage_analyst
-from utils.workflow_helpers import safe_get_step_content, create_error_response, create_success_response
+from utils.workflow_helpers import get_parallel_step_content, create_error_response, create_success_response
 
 
 def analyze_vendor_homepage(step_input: StepInput) -> StepOutput:
@@ -19,31 +19,11 @@ def analyze_vendor_homepage(step_input: StepInput) -> StepOutput:
     Returns:
         StepOutput with vendor homepage analysis
     """
-    # Access parallel block by name first (per Agno docs)
-    parallel_results = step_input.get_step_content("parallel_homepage_scraping")
+    # Get vendor homepage data from parallel block
+    vendor_homepage_data = get_parallel_step_content(step_input, "parallel_homepage_scraping", "scrape_vendor_home")
 
-    if not parallel_results or not isinstance(parallel_results, dict):
-        return create_error_response("Step 2 parallel scraping failed: no results returned")
-
-    # Extract individual step data from parallel results
-    vendor_homepage_data = parallel_results.get("scrape_vendor_home")
-
-    if not vendor_homepage_data:
-        return create_error_response("Step 2 vendor scraping failed: no data returned")
-
-    # Deserialize Python repr string if needed (Agno stores as str(dict))
-    import ast
-    if isinstance(vendor_homepage_data, str):
-        try:
-            vendor_homepage_data = ast.literal_eval(vendor_homepage_data)
-        except (ValueError, SyntaxError) as e:
-            return create_error_response(f"Step 2 vendor scraping failed: invalid data string - {str(e)}")
-
-    if not isinstance(vendor_homepage_data, dict):
-        return create_error_response(f"Step 2 vendor scraping failed: unexpected type {type(vendor_homepage_data)}")
-
-    if "error" in vendor_homepage_data:
-        return create_error_response(f"Step 2 vendor scraping failed: {vendor_homepage_data['error']}")
+    if not vendor_homepage_data or "error" in vendor_homepage_data:
+        return create_error_response(f"Step 2 vendor scraping failed: {vendor_homepage_data.get('error', 'no data returned')}")
 
     markdown_content = vendor_homepage_data.get("vendor_homepage_markdown", "")
 
@@ -53,17 +33,14 @@ def analyze_vendor_homepage(step_input: StepInput) -> StepOutput:
     print(f"🤖 Analyzing vendor homepage with AI...")
 
     try:
-        # Run agent
         response = homepage_analyst.run(
             input=f"Analyze this homepage:\n\n{markdown_content}"
         )
 
-        analysis = response.content
-
         print(f"✅ Vendor homepage analyzed")
 
         return create_success_response({
-            "vendor_homepage_analysis": analysis
+            "vendor_homepage_analysis": response.content
         })
 
     except Exception as e:
@@ -80,31 +57,11 @@ def analyze_prospect_homepage(step_input: StepInput) -> StepOutput:
     Returns:
         StepOutput with prospect homepage analysis
     """
-    # Access parallel block by name first (per Agno docs)
-    parallel_results = step_input.get_step_content("parallel_homepage_scraping")
+    # Get prospect homepage data from parallel block
+    prospect_homepage_data = get_parallel_step_content(step_input, "parallel_homepage_scraping", "scrape_prospect_home")
 
-    if not parallel_results or not isinstance(parallel_results, dict):
-        return create_error_response("Step 2 parallel scraping failed: no results returned")
-
-    # Extract individual step data from parallel results
-    prospect_homepage_data = parallel_results.get("scrape_prospect_home")
-
-    if not prospect_homepage_data:
-        return create_error_response("Step 2 prospect scraping failed: no data returned")
-
-    # Deserialize Python repr string if needed (Agno stores as str(dict))
-    import ast
-    if isinstance(prospect_homepage_data, str):
-        try:
-            prospect_homepage_data = ast.literal_eval(prospect_homepage_data)
-        except (ValueError, SyntaxError) as e:
-            return create_error_response(f"Step 2 prospect scraping failed: invalid data string - {str(e)}")
-
-    if not isinstance(prospect_homepage_data, dict):
-        return create_error_response(f"Step 2 prospect scraping failed: unexpected type {type(prospect_homepage_data)}")
-
-    if "error" in prospect_homepage_data:
-        return create_error_response(f"Step 2 prospect scraping failed: {prospect_homepage_data['error']}")
+    if not prospect_homepage_data or "error" in prospect_homepage_data:
+        return create_error_response(f"Step 2 prospect scraping failed: {prospect_homepage_data.get('error', 'no data returned')}")
 
     markdown_content = prospect_homepage_data.get("prospect_homepage_markdown", "")
 
@@ -114,17 +71,14 @@ def analyze_prospect_homepage(step_input: StepInput) -> StepOutput:
     print(f"🤖 Analyzing prospect homepage with AI...")
 
     try:
-        # Run agent
         response = homepage_analyst.run(
             input=f"Analyze this homepage:\n\n{markdown_content}"
         )
 
-        analysis = response.content
-
         print(f"✅ Prospect homepage analyzed")
 
         return create_success_response({
-            "prospect_homepage_analysis": analysis
+            "prospect_homepage_analysis": response.content
         })
 
     except Exception as e:

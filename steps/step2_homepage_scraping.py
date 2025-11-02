@@ -6,7 +6,7 @@ Runs in parallel for both homepages.
 
 from agno.workflow.types import StepInput, StepOutput
 from utils.firecrawl_helpers import scrape_url
-from utils.workflow_helpers import safe_get_step_content, create_error_response, create_success_response
+from utils.workflow_helpers import get_parallel_step_content, create_error_response, create_success_response
 
 
 def scrape_vendor_homepage(step_input: StepInput) -> StepOutput:
@@ -19,29 +19,14 @@ def scrape_vendor_homepage(step_input: StepInput) -> StepOutput:
     Returns:
         StepOutput with vendor homepage content (markdown, html, metadata)
     """
-    # Access parallel block by name first (per Agno docs)
-    parallel_results = step_input.get_step_content("parallel_validation")
-
-    if not parallel_results or not isinstance(parallel_results, dict):
-        return create_error_response("Step 1 parallel validation failed: no results returned")
-
-    # Extract individual step data from parallel results
-    vendor_data = parallel_results.get("validate_vendor")
-
+    # Get vendor validation data from parallel block (automatically deserializes)
+    vendor_data = get_parallel_step_content(step_input, "parallel_validation", "validate_vendor")
     if not vendor_data:
         return create_error_response("Step 1 vendor validation failed: no data returned")
 
-    # Deserialize Python repr string if needed (Agno stores as str(dict))
-    import ast
-    if isinstance(vendor_data, str):
-        try:
-            vendor_data = ast.literal_eval(vendor_data)
-        except (ValueError, SyntaxError) as e:
-            return create_error_response(f"Step 1 vendor validation failed: invalid data string - {str(e)}")
-
-    # vendor_data should be a dict with vendor_domain, vendor_urls, etc.
+    # Type check - should be dict after deserialization
     if not isinstance(vendor_data, dict):
-        return create_error_response(f"Step 1 vendor validation failed: unexpected type {type(vendor_data)}")
+        return create_error_response(f"Step 1 vendor validation failed: expected dict, got {type(vendor_data).__name__}: {str(vendor_data)[:100]}")
 
     if "error" in vendor_data:
         return create_error_response(f"Step 1 vendor validation failed: {vendor_data['error']}")
@@ -77,28 +62,10 @@ def scrape_prospect_homepage(step_input: StepInput) -> StepOutput:
     Returns:
         StepOutput with prospect homepage content (markdown, html, metadata)
     """
-    # Access parallel block by name first (per Agno docs)
-    parallel_results = step_input.get_step_content("parallel_validation")
-
-    if not parallel_results or not isinstance(parallel_results, dict):
-        return create_error_response("Step 1 parallel validation failed: no results returned")
-
-    # Extract individual step data from parallel results
-    prospect_data = parallel_results.get("validate_prospect")
-
+    # Get prospect validation data from parallel block (automatically deserializes)
+    prospect_data = get_parallel_step_content(step_input, "parallel_validation", "validate_prospect")
     if not prospect_data:
         return create_error_response("Step 1 prospect validation failed: no data returned")
-
-    # Deserialize Python repr string if needed (Agno stores as str(dict))
-    import ast
-    if isinstance(prospect_data, str):
-        try:
-            prospect_data = ast.literal_eval(prospect_data)
-        except (ValueError, SyntaxError) as e:
-            return create_error_response(f"Step 1 prospect validation failed: invalid data string - {str(e)}")
-
-    if not isinstance(prospect_data, dict):
-        return create_error_response(f"Step 1 prospect validation failed: unexpected type {type(prospect_data)}")
 
     if "error" in prospect_data:
         return create_error_response(f"Step 1 prospect validation failed: {prospect_data['error']}")

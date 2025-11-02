@@ -8,19 +8,9 @@ from agents.playbook_specialists.playbook_orchestrator import playbook_orchestra
 from agents.playbook_specialists.email_sequence_writer import email_sequence_writer
 from agents.playbook_specialists.talk_track_creator import talk_track_creator
 from agents.playbook_specialists.battle_card_builder import battle_card_builder
+from utils.workflow_helpers import get_parallel_step_content, create_error_response, create_success_response
 import json
-import ast
 from datetime import datetime
-
-
-def deserialize_step_data(data):
-    """Agno stores parallel block outputs as str(dict), need to deserialize"""
-    if isinstance(data, str):
-        try:
-            return ast.literal_eval(data)
-        except (ValueError, SyntaxError):
-            return None
-    return data if isinstance(data, dict) else None
 
 
 def generate_playbook_summary(step_input: StepInput) -> StepOutput:
@@ -32,47 +22,44 @@ def generate_playbook_summary(step_input: StepInput) -> StepOutput:
     """
     try:
         # Get vendor intelligence from Step 6 (vendor_element_extraction Parallel block)
-        vendor_extraction = step_input.get_step_content("vendor_element_extraction")
-        vendor_extraction = deserialize_step_data(vendor_extraction)
+        offerings_data = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_offerings")
+        case_studies_data = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_case_studies")
+        value_props_data = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_value_props")
+        use_cases_data = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_use_cases")
+        personas_data = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_personas")
+        differentiators_data = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_differentiators")
+        proof_points_data = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_proof_points")
+        customers_data = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_customers")
 
-        if not vendor_extraction:
-            return StepOutput(
-                content={"error": "No vendor extraction results"},
-                success=False
-            )
+        if not offerings_data:
+            return create_error_response("No vendor extraction results available")
 
-        # Deserialize each vendor extraction result
+        # Access each vendor extraction result directly
         vendor_intel = {
-            "offerings": deserialize_step_data(vendor_extraction.get("extract_offerings", {})).get("offerings", []) if deserialize_step_data(vendor_extraction.get("extract_offerings")) else [],
-            "case_studies": deserialize_step_data(vendor_extraction.get("extract_case_studies", {})).get("case_studies", []) if deserialize_step_data(vendor_extraction.get("extract_case_studies")) else [],
-            "value_propositions": deserialize_step_data(vendor_extraction.get("extract_value_props", {})).get("value_propositions", []) if deserialize_step_data(vendor_extraction.get("extract_value_props")) else [],
-            "use_cases": deserialize_step_data(vendor_extraction.get("extract_use_cases", {})).get("use_cases", []) if deserialize_step_data(vendor_extraction.get("extract_use_cases")) else [],
-            "target_personas": deserialize_step_data(vendor_extraction.get("extract_personas", {})).get("target_personas", []) if deserialize_step_data(vendor_extraction.get("extract_personas")) else [],
-            "differentiators": deserialize_step_data(vendor_extraction.get("extract_differentiators", {})).get("differentiators", []) if deserialize_step_data(vendor_extraction.get("extract_differentiators")) else [],
-            "proof_points": deserialize_step_data(vendor_extraction.get("extract_proof_points", {})).get("proof_points", []) if deserialize_step_data(vendor_extraction.get("extract_proof_points")) else [],
-            "customers": deserialize_step_data(vendor_extraction.get("extract_customers", {})).get("reference_customers", []) if deserialize_step_data(vendor_extraction.get("extract_customers")) else []
+            "offerings": offerings_data.get("offerings", []),
+            "case_studies": case_studies_data.get("case_studies", []) if case_studies_data else [],
+            "value_propositions": value_props_data.get("value_propositions", []) if value_props_data else [],
+            "use_cases": use_cases_data.get("use_cases", []) if use_cases_data else [],
+            "target_personas": personas_data.get("target_personas", []) if personas_data else [],
+            "differentiators": differentiators_data.get("differentiators", []) if differentiators_data else [],
+            "proof_points": proof_points_data.get("proof_points", []) if proof_points_data else [],
+            "customers": customers_data.get("reference_customers", []) if customers_data else []
         }
 
         # Get prospect buyer personas from Step 7b
         prospect_personas_data = step_input.get_step_content("identify_buyer_personas")
         if not prospect_personas_data:
-            return StepOutput(
-                content={"error": "No buyer personas identified"},
-                success=False
-            )
+            return create_error_response("No buyer personas identified")
 
         target_personas = prospect_personas_data.get("target_buyer_personas", [])
 
         # Get prospect context from Step 7a (prospect_context_analysis Parallel block)
-        prospect_context = step_input.get_step_content("prospect_context_analysis")
-        prospect_context = deserialize_step_data(prospect_context)
-
-        company_data = deserialize_step_data(prospect_context.get("analyze_company", {})) if prospect_context else {}
-        pain_points_data = deserialize_step_data(prospect_context.get("analyze_pain_points", {})) if prospect_context else {}
+        company_data = get_parallel_step_content(step_input, "prospect_context_analysis", "analyze_company")
+        pain_points_data = get_parallel_step_content(step_input, "prospect_context_analysis", "analyze_pain_points")
 
         prospect_intel = {
-            "company_profile": company_data.get("company_profile", {}),
-            "pain_points": pain_points_data.get("pain_points", []),
+            "company_profile": company_data.get("company_profile", {}) if company_data else {},
+            "pain_points": pain_points_data.get("pain_points", []) if pain_points_data else [],
             "target_buyer_personas": target_personas
         }
 
@@ -345,22 +332,15 @@ def assemble_final_playbook(step_input: StepInput) -> StepOutput:
     """
     try:
         # Get all playbook components from Step 8 parallel block
-        playbook_components = step_input.get_step_content("playbook_component_generation")
-        playbook_components = deserialize_step_data(playbook_components)
+        email_sequences_data = get_parallel_step_content(step_input, "playbook_component_generation", "generate_email_sequences")
+        talk_tracks_data = get_parallel_step_content(step_input, "playbook_component_generation", "generate_talk_tracks")
+        battle_cards_data = get_parallel_step_content(step_input, "playbook_component_generation", "generate_battle_cards")
 
-        if not playbook_components:
-            return StepOutput(
-                content={"error": "No playbook components available"},
-                success=False
-            )
+        if not email_sequences_data and not talk_tracks_data and not battle_cards_data:
+            return create_error_response("No playbook components available")
 
         # Get summary (sequential step before parallel)
         summary = step_input.get_step_content("generate_playbook_summary")
-
-        # Deserialize each component
-        email_sequences_data = deserialize_step_data(playbook_components.get("generate_email_sequences", {}))
-        talk_tracks_data = deserialize_step_data(playbook_components.get("generate_talk_tracks", {}))
-        battle_cards_data = deserialize_step_data(playbook_components.get("generate_battle_cards", {}))
 
         # Get vendor/prospect names
         vendor_name = summary["vendor_intelligence"]["offerings"][0]["name"] if summary["vendor_intelligence"].get("offerings") else "Vendor"

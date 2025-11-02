@@ -2,6 +2,7 @@ from agno.workflow.types import StepInput, StepOutput
 from agents.prospect_specialists.company_analyst import company_analyst
 from agents.prospect_specialists.pain_point_analyst import pain_point_analyst
 from agents.prospect_specialists.buyer_persona_analyst import buyer_persona_analyst
+from utils.workflow_helpers import get_parallel_step_content, create_error_response, create_success_response
 import json
 
 
@@ -105,47 +106,17 @@ def analyze_pain_points(step_input: StepInput) -> StepOutput:
 def identify_buyer_personas(step_input: StepInput) -> StepOutput:
     """Identify target buyer personas using vendor + prospect intelligence"""
     try:
-        import ast
-
-        # Helper function to deserialize Agno parallel outputs (stored as str(dict))
-        def deserialize_step_data(data):
-            """Agno stores parallel block outputs as str(dict), need to deserialize"""
-            if isinstance(data, str):
-                try:
-                    return ast.literal_eval(data)
-                except (ValueError, SyntaxError):
-                    return None
-            return data if isinstance(data, dict) else None
-
         # Get vendor elements from Step 6 (vendor_element_extraction Parallel block)
-        vendor_extraction_results = step_input.get_step_content("vendor_element_extraction")
-        vendor_extraction_results = deserialize_step_data(vendor_extraction_results)
-
-        if not vendor_extraction_results:
-            return StepOutput(
-                content={"error": "No vendor extraction results available", "target_buyer_personas": []},
-                success=False
-            )
-
-        vendor_offerings = deserialize_step_data(vendor_extraction_results.get("extract_offerings"))
-        vendor_case_studies = deserialize_step_data(vendor_extraction_results.get("extract_case_studies"))
-        vendor_value_props = deserialize_step_data(vendor_extraction_results.get("extract_value_props"))
-        vendor_use_cases = deserialize_step_data(vendor_extraction_results.get("extract_use_cases"))
-        vendor_personas = deserialize_step_data(vendor_extraction_results.get("extract_personas"))
-        vendor_differentiators = deserialize_step_data(vendor_extraction_results.get("extract_differentiators"))
+        vendor_offerings = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_offerings")
+        vendor_case_studies = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_case_studies")
+        vendor_value_props = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_value_props")
+        vendor_use_cases = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_use_cases")
+        vendor_personas = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_personas")
+        vendor_differentiators = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_differentiators")
 
         # Get prospect intelligence from Step 7a (prospect_context_analysis Parallel block)
-        prospect_context_results = step_input.get_step_content("prospect_context_analysis")
-        prospect_context_results = deserialize_step_data(prospect_context_results)
-
-        if not prospect_context_results:
-            return StepOutput(
-                content={"error": "No prospect context results available", "target_buyer_personas": []},
-                success=False
-            )
-
-        company_data = deserialize_step_data(prospect_context_results.get("analyze_company"))
-        pain_points_data = deserialize_step_data(prospect_context_results.get("analyze_pain_points"))
+        company_data = get_parallel_step_content(step_input, "prospect_context_analysis", "analyze_company")
+        pain_points_data = get_parallel_step_content(step_input, "prospect_context_analysis", "analyze_pain_points")
 
         if not company_data or not vendor_value_props:
             print("⚠️  Missing required data for persona identification")
@@ -157,20 +128,18 @@ def identify_buyer_personas(step_input: StepInput) -> StepOutput:
             )
 
         # Build comprehensive intelligence package
-        # The data from parallel blocks IS the actual content dict (not wrapped)
-        # So vendor_offerings IS {"offerings": [...], "success": True}
         vendor_intelligence = {
-            "offerings": vendor_offerings.get("offerings", []) if isinstance(vendor_offerings, dict) else [],
-            "case_studies": vendor_case_studies.get("case_studies", []) if isinstance(vendor_case_studies, dict) else [],
-            "value_propositions": vendor_value_props.get("value_propositions", []) if isinstance(vendor_value_props, dict) else [],
-            "use_cases": vendor_use_cases.get("use_cases", []) if isinstance(vendor_use_cases, dict) else [],
-            "target_personas": vendor_personas.get("target_personas", []) if isinstance(vendor_personas, dict) else [],
-            "differentiators": vendor_differentiators.get("differentiators", []) if isinstance(vendor_differentiators, dict) else []
+            "offerings": vendor_offerings.get("offerings", []) if vendor_offerings else [],
+            "case_studies": vendor_case_studies.get("case_studies", []) if vendor_case_studies else [],
+            "value_propositions": vendor_value_props.get("value_propositions", []) if vendor_value_props else [],
+            "use_cases": vendor_use_cases.get("use_cases", []) if vendor_use_cases else [],
+            "target_personas": vendor_personas.get("target_personas", []) if vendor_personas else [],
+            "differentiators": vendor_differentiators.get("differentiators", []) if vendor_differentiators else []
         }
 
         prospect_intelligence = {
-            "company_profile": company_data.get("company_profile", {}) if isinstance(company_data, dict) else {},
-            "pain_points": pain_points_data.get("pain_points", []) if isinstance(pain_points_data, dict) else []
+            "company_profile": company_data.get("company_profile", {}) if company_data else {},
+            "pain_points": pain_points_data.get("pain_points", []) if pain_points_data else []
         }
 
         print(f"🎯 Identifying target buyer personas using vendor + prospect intelligence...")

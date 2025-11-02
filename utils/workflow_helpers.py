@@ -6,6 +6,69 @@ Implements fail-fast validation patterns from CLAUDE.md preferences.
 
 from agno.workflow.types import StepInput, StepOutput
 from typing import Dict, Tuple, Optional, Any
+import ast
+
+
+def get_parallel_step_content(
+    step_input: StepInput,
+    parallel_block_name: str,
+    step_name: str
+) -> Optional[Dict]:
+    """
+    Safely get content from a parallel block step with automatic deserialization.
+
+    Agno stores parallel block step outputs as string representations when accessed
+    by later steps, so this helper automatically deserializes them.
+
+    Args:
+        step_input: StepInput object
+        parallel_block_name: Name of the parallel block (e.g., "parallel_validation")
+        step_name: Name of the step within the parallel block (e.g., "validate_vendor")
+
+    Returns:
+        Dict content of the step, or None if not found
+
+    Example:
+        vendor_data = get_parallel_step_content(step_input, "parallel_validation", "validate_vendor")
+    """
+    # Get the parallel block
+    parallel_block = step_input.get_step_content(parallel_block_name)
+
+    if not parallel_block:
+        return None
+
+    # Handle if parallel_block itself is a string (shouldn't happen but be safe)
+    if isinstance(parallel_block, str):
+        try:
+            parallel_block = ast.literal_eval(parallel_block)
+        except (ValueError, SyntaxError):
+            return None
+
+    if not isinstance(parallel_block, dict):
+        return None
+
+    # Get the specific step content
+    step_content = parallel_block.get(step_name)
+
+    if not step_content:
+        return None
+
+    # Deserialize if it's a string (Agno stores parallel outputs as strings)
+    if isinstance(step_content, str):
+        try:
+            step_content = ast.literal_eval(step_content)
+        except (ValueError, SyntaxError, NameError, TypeError) as e:
+            # If deserialization fails, log and return None
+            print(f"❌ Failed to deserialize step content from {parallel_block_name}.{step_name}: {type(e).__name__}: {str(e)[:100]}")
+            print(f"   Content preview: {step_content[:200]}...")
+            return None
+
+    # Ensure we're returning a dict
+    if not isinstance(step_content, dict):
+        print(f"❌ Step content from {parallel_block_name}.{step_name} is not a dict after deserialization: {type(step_content).__name__}")
+        return None
+
+    return step_content
 
 
 def extract_domains_from_input(step_input: StepInput) -> Tuple[Optional[str], Optional[str]]:
