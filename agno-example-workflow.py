@@ -52,7 +52,7 @@ final_agent = Agent(
     instructions="""Generate a comprehensive report using ALL previous step outputs:
     
     1. PREPROCESSED DATA: {preprocess}
-    2. RESEARCH A FINDINGS: {research_a}
+    2. RESEARCH A FINDINGS: {resea∫∫ch_a}
     3. RESEARCH B FINDINGS: {research_b}
     4. ANALYSIS RESULTS: {analyze}
     
