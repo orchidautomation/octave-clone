@@ -1,5 +1,5 @@
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+import config
 from models.prospect_intelligence import PainPoint
 from typing import List
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ class PainPointsResult(BaseModel):
 
 pain_point_analyst = Agent(
     name="Pain Point Analyst",
-    model=OpenAIChat(id="gpt-4o"),
+    model=config.REASONING_MODEL,
     instructions="""
     You are an expert at inferring company pain points and challenges from their content.
 

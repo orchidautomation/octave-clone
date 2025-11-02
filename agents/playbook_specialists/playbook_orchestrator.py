@@ -1,5 +1,5 @@
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+import config
 from pydantic import BaseModel
 from typing import List, Dict
 
@@ -13,7 +13,7 @@ class PlaybookSummary(BaseModel):
 
 playbook_orchestrator = Agent(
     name="Sales Playbook Orchestrator",
-    model=OpenAIChat(id="gpt-4o"),
+    model=config.DEFAULT_MODEL,
     instructions="""
     You are a sales playbook strategist who synthesizes intelligence into executive summaries.
 

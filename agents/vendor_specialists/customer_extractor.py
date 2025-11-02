@@ -1,5 +1,5 @@
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+import config
 from models.vendor_elements import ReferenceCustomer
 from typing import List
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ class ReferenceCustomersExtractionResult(BaseModel):
 
 customer_extractor = Agent(
     name="Reference Customer Extractor",
-    model=OpenAIChat(id="gpt-4o"),
+    model=config.EXTRACTION_MODEL,  # gpt-4o-mini for fast extraction
     instructions="""
     You are an expert at identifying customer references and logos.
 

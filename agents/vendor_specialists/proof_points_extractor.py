@@ -1,5 +1,5 @@
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+import config
 from models.vendor_elements import ProofPoint
 from typing import List
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ class ProofPointsExtractionResult(BaseModel):
 
 proof_points_extractor = Agent(
     name="Proof Points Extractor",
-    model=OpenAIChat(id="gpt-4o"),
+    model=config.EXTRACTION_MODEL,  # gpt-4o-mini for fast extraction
     instructions="""
     You are an expert at identifying credibility indicators and social proof.
 

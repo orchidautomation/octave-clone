@@ -1,5 +1,5 @@
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+import config
 from models.playbook import TalkTrack
 from typing import List
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ class TalkTrackResult(BaseModel):
 
 talk_track_creator = Agent(
     name="Talk Track Specialist",
-    model=OpenAIChat(id="gpt-4o"),
+    model=config.DEFAULT_MODEL,
     instructions="""
     You are a sales call coaching expert who creates talk tracks and call scripts.
 

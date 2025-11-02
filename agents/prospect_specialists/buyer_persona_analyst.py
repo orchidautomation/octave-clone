@@ -1,5 +1,5 @@
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+import config
 from models.prospect_intelligence import TargetBuyerPersona
 from typing import List
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ class BuyerPersonasResult(BaseModel):
 
 buyer_persona_analyst = Agent(
     name="Strategic Buyer Persona Analyst",
-    model=OpenAIChat(id="gpt-4o"),
+    model=config.REASONING_MODEL,
     instructions="""
     You are a strategic sales intelligence analyst identifying WHO at the prospect company the vendor should target for outreach.
 

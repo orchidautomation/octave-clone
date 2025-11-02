@@ -1,5 +1,5 @@
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+import config
 from models.playbook import BattleCard
 from typing import List
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ class BattleCardResult(BaseModel):
 
 battle_card_builder = Agent(
     name="Battle Card Specialist",
-    model=OpenAIChat(id="gpt-4o"),
+    model=config.DEFAULT_MODEL,
     instructions="""
     You are a competitive intelligence expert who creates sales battle cards.
 

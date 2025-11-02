@@ -1,5 +1,5 @@
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+import config
 from models.prospect_intelligence import CompanyProfile
 from pydantic import BaseModel
 
@@ -10,7 +10,7 @@ class CompanyProfileResult(BaseModel):
 
 company_analyst = Agent(
     name="Company Profile Analyst",
-    model=OpenAIChat(id="gpt-4o"),
+    model=config.REASONING_MODEL,
     instructions="""
     You are a B2B company analyst extracting minimal company context for sales intelligence.
 

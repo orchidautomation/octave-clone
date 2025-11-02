@@ -1,5 +1,5 @@
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+import config
 from models.vendor_elements import CaseStudy
 from typing import List
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ class CaseStudiesExtractionResult(BaseModel):
 
 case_study_extractor = Agent(
     name="Case Study Extractor",
-    model=OpenAIChat(id="gpt-4o"),
+    model=config.EXTRACTION_MODEL,  # gpt-4o-mini for fast extraction
     instructions="""
     You are an expert at extracting customer success stories and case studies.
 

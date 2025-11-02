@@ -25,7 +25,17 @@ MAX_URLS_TO_SCRAPE = int(os.getenv("MAX_URLS_TO_SCRAPE", "50"))  # 25 vendor + 2
 BATCH_SCRAPE_TIMEOUT = int(os.getenv("BATCH_SCRAPE_TIMEOUT", "180"))  # 3 minutes
 BATCH_SCRAPE_POLL_INTERVAL = 2  # Poll every 2 seconds
 
-# Model Configuration
+# Model Configuration (model-as-string format)
+# Agno 2.2.6+ supports model-as-string format: "provider:model_id"
+# See: https://docs.agno.com/concepts/models/model-as-string
+
+# Primary models for different task types
+DEFAULT_MODEL = "openai:gpt-4o"           # Complex reasoning, synthesis, creative writing
+FAST_MODEL = "openai:gpt-4o-mini"         # Simple tasks, pattern matching (40-60% faster!)
+REASONING_MODEL = "openai:gpt-4o"         # Analysis, complex reasoning tasks
+EXTRACTION_MODEL = "openai:gpt-4o-mini"   # Data extraction, entity extraction
+
+# Legacy constant (kept for compatibility)
 OPENAI_MODEL = "gpt-4o"
 
 # Scraping Configuration

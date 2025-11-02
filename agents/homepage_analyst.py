@@ -1,16 +1,15 @@
 """
 Homepage Analyst Agent
 Analyzes homepage content to extract company basics, offerings, trust signals, and CTAs.
-Uses OpenAI GPT-4o for analysis.
+Uses OpenAI GPT-4o for complex reasoning and analysis.
 """
 
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
 import config
 
 homepage_analyst = Agent(
     name="Homepage Analyst",
-    model=OpenAIChat(id=config.OPENAI_MODEL),
+    model=config.DEFAULT_MODEL,
     instructions="""
     You are a B2B company analyst specializing in homepage analysis.
 

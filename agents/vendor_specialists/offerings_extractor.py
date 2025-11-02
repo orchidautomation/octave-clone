@@ -1,5 +1,5 @@
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+import config
 from models.vendor_elements import Offering
 from typing import List
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ class OfferingsExtractionResult(BaseModel):
 
 offerings_extractor = Agent(
     name="Offerings Extractor",
-    model=OpenAIChat(id="gpt-4o"),
+    model=config.EXTRACTION_MODEL,  # gpt-4o-mini for fast extraction
     instructions="""
     You are an expert at identifying and cataloging product offerings from company content.
 
