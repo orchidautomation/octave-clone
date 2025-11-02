@@ -47,6 +47,8 @@ htmlcov/
 *.md
 !README.md
 !CONTRIBUTING.md
+!AGENTOS_SPOTLIGHT_PROPOSAL.md
+!AGENTOS_SPOTLIGHT_ONE_PAGER.md
 !docs/**
 !marketing/**
 !artifacts/**
