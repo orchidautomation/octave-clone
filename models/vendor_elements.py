@@ -64,7 +64,13 @@ class UseCase(BaseModel):
 
 
 class TargetPersona(BaseModel):
-    """Target buyer persona"""
+    """
+    Vendor's ICP (Ideal Customer Profile) Persona
+
+    This represents the types of buyers the vendor TYPICALLY sells to,
+    not specific personas at a particular prospect company.
+    Used to understand vendor's go-to-market focus and typical buyer profiles.
+    """
     title: str
     department: Optional[str] = None
     responsibilities: List[str] = Field(default_factory=list)
@@ -89,5 +95,8 @@ class VendorElements(BaseModel):
     value_propositions: List[ValueProposition] = Field(default_factory=list)
     reference_customers: List[ReferenceCustomer] = Field(default_factory=list)
     use_cases: List[UseCase] = Field(default_factory=list)
-    target_personas: List[TargetPersona] = Field(default_factory=list)
+    vendor_icp_personas: List[TargetPersona] = Field(
+        default_factory=list,
+        description="Vendor's ICP - types of buyers they typically sell to (not prospect-specific)"
+    )
     differentiators: List[Differentiator] = Field(default_factory=list)

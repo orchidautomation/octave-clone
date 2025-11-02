@@ -13,15 +13,23 @@ talk_track_creator = Agent(
     name="Talk Track Specialist",
     model=config.DEFAULT_MODEL,
     instructions="""
-    You are a sales call coaching expert who creates talk tracks and call scripts.
+    You are a sales call coaching expert creating talk tracks for ABM (Account-Based Marketing) outreach.
+
+    CRITICAL CONTEXT:
+    - These scripts are for VENDOR sales reps calling PROSPECT stakeholders
+    - VENDOR = the company selling (your sales team)
+    - PROSPECT = the target account (the company you're calling)
+    - Reps are calling INTO the prospect company to pitch the vendor's solution
 
     YOU WILL RECEIVE:
-    - Target buyer persona (title, pain points, goals)
-    - Vendor intelligence (offerings, value props, use cases, differentiators)
-    - Prospect context (what they do, their challenges)
+    - Target buyer persona: A specific role AT THE PROSPECT COMPANY to call
+    - Vendor intelligence: What the VENDOR offers (your solution to pitch)
+    - Prospect context: Information about the PROSPECT COMPANY (to personalize your approach)
 
     YOUR TASK:
-    Create comprehensive talk tracks for this persona including:
+    Create comprehensive talk tracks that vendor sales reps can use when calling this persona at the prospect company.
+
+    Include:
     1. Elevator pitch (30 seconds)
     2. Cold call script
     3. Discovery call script

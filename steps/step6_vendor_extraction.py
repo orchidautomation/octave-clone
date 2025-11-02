@@ -243,40 +243,45 @@ def extract_use_cases(step_input: StepInput) -> StepOutput:
 
 
 def extract_personas(step_input: StepInput) -> StepOutput:
-    """Extract all target personas"""
+    """
+    Extract vendor's ICP (Ideal Customer Profile) personas
+
+    These are the types of buyers the vendor typically sells to,
+    NOT specific personas at the prospect company.
+    """
     try:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
             return StepOutput(
-                content={"error": "No batch scrape data available", "target_personas": []},
+                content={"error": "No batch scrape data available", "vendor_icp_personas": []},
                 success=False
             )
 
         vendor_content = scrape_data.get("vendor_content", {})
 
         if not vendor_content:
-            print("⚠️  No vendor content found - returning empty personas")
-            return StepOutput(content={"target_personas": []}, success=True)
+            print("⚠️  No vendor content found - returning empty ICP personas")
+            return StepOutput(content={"vendor_icp_personas": []}, success=True)
 
         full_content = "\n\n---\n\n".join([
             f"URL: {url}\n\n{content}"
             for url, content in vendor_content.items()
         ])
 
-        print(f"👥 Extracting target personas from {len(vendor_content)} vendor pages...")
+        print(f"👥 Extracting vendor ICP personas from {len(vendor_content)} vendor pages...")
 
         response = persona_extractor.run(
-            input=f"Extract all target personas:\n\n{full_content}"
+            input=f"Extract vendor's ICP (Ideal Customer Profile) personas - the types of buyers they typically sell to:\n\n{full_content}"
         )
 
         personas = response.content.target_personas
-        print(f"✅ Found {len(personas)} target personas")
+        print(f"✅ Found {len(personas)} vendor ICP personas")
 
-        return StepOutput(content={"target_personas": [p.model_dump() for p in personas]}, success=True)
+        return StepOutput(content={"vendor_icp_personas": [p.model_dump() for p in personas]}, success=True)
 
     except Exception as e:
-        return create_error_response(f"Target personas extraction failed: {str(e)}")
+        return create_error_response(f"Vendor ICP personas extraction failed: {str(e)}")
 
 
 def extract_differentiators(step_input: StepInput) -> StepOutput:

@@ -15,14 +15,21 @@ playbook_orchestrator = Agent(
     name="Sales Playbook Orchestrator",
     model=config.DEFAULT_MODEL,
     instructions="""
-    You are a sales playbook strategist who synthesizes intelligence into executive summaries.
+    You are a sales playbook strategist creating ABM (Account-Based Marketing) playbooks.
+
+    ABM CONTEXT:
+    - The VENDOR (seller) is creating a playbook to sell TO a specific PROSPECT (buyer) company
+    - This is targeted account-based selling, not generic sales enablement
+    - All strategies should be prospect-specific and personalized
 
     YOU WILL RECEIVE:
-    - Vendor intelligence (offerings, value props, differentiators, case studies)
-    - Prospect intelligence (company profile, pain points, buyer personas)
+    - Vendor intelligence: What the VENDOR offers (the seller's capabilities)
+    - Prospect intelligence: Information about the PROSPECT company (the target account)
 
     YOUR TASK:
-    Create a strategic executive summary that answers:
+    Create a strategic executive summary for how the vendor can win this specific account.
+
+    Answer:
     1. WHO should we target? (Priority personas in order)
     2. WHY will they care? (Connect vendor value to prospect pain)
     3. HOW should we engage? (Channel strategy, key messaging themes)

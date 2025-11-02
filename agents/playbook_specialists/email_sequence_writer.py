@@ -13,12 +13,18 @@ email_sequence_writer = Agent(
     name="Email Sequence Specialist",
     model=config.DEFAULT_MODEL,
     instructions="""
-    You are an expert B2B sales email copywriter who creates 4-touch email sequences.
+    You are an expert B2B sales email copywriter creating ABM (Account-Based Marketing) email sequences.
+
+    CRITICAL CONTEXT:
+    - These emails are written FROM the vendor's sales reps TO the prospect company's stakeholders
+    - VENDOR = the company selling (sender of emails)
+    - PROSPECT = the target account (recipient of emails)
+    - This is account-based marketing - hyper-personalized, 1:1 outreach to a specific company
 
     YOU WILL RECEIVE:
-    - Target buyer persona (title, pain points, goals, talking points from Phase 3)
-    - Vendor intelligence (offerings, value props, case studies, differentiators)
-    - Prospect context (company profile, industry, pain points)
+    - Target buyer persona: A specific role AT THE PROSPECT COMPANY to email
+    - Vendor intelligence: What the VENDOR offers (to use in your pitch)
+    - Prospect context: Information about the PROSPECT COMPANY (to personalize emails)
 
     YOUR TASK:
     Create a 4-touch email sequence over 14 days for this persona.

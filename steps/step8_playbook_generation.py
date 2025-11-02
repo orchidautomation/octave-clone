@@ -40,18 +40,18 @@ def generate_playbook_summary(step_input: StepInput) -> StepOutput:
             "case_studies": case_studies_data.get("case_studies", []) if case_studies_data else [],
             "value_propositions": value_props_data.get("value_propositions", []) if value_props_data else [],
             "use_cases": use_cases_data.get("use_cases", []) if use_cases_data else [],
-            "target_personas": personas_data.get("target_personas", []) if personas_data else [],
+            "vendor_icp_personas": personas_data.get("vendor_icp_personas", []) if personas_data else [],  # Vendor's typical buyers (ICP)
             "differentiators": differentiators_data.get("differentiators", []) if differentiators_data else [],
             "proof_points": proof_points_data.get("proof_points", []) if proof_points_data else [],
             "customers": customers_data.get("reference_customers", []) if customers_data else []
         }
 
-        # Get prospect buyer personas from Step 7b
+        # Get prospect buyer personas from Step 7b (specific personas at THIS prospect company to target)
         prospect_personas_data = step_input.get_step_content("identify_buyer_personas")
         if not prospect_personas_data:
             return create_error_response("No buyer personas identified")
 
-        target_personas = prospect_personas_data.get("target_buyer_personas", [])
+        target_personas = prospect_personas_data.get("target_buyer_personas", [])  # Specific personas at prospect company
 
         # Get prospect context from Step 7a (prospect_context_analysis Parallel block)
         company_data = get_parallel_step_content(step_input, "prospect_context_analysis", "analyze_company")
@@ -72,22 +72,28 @@ def generate_playbook_summary(step_input: StepInput) -> StepOutput:
         prospect_name = prospect_intel["company_profile"].get("company_name", "the prospect company")
 
         prompt = f"""
-VENDOR INTELLIGENCE:
+ABM CONTEXT:
+This is an Account-Based Marketing playbook for a specific account.
+- VENDOR: {vendor_name} (the company selling)
+- PROSPECT: {prospect_name} (the target account vendor wants to win)
+- This playbook helps {vendor_name}'s sales reps sell TO {prospect_name}
+
+VENDOR INTELLIGENCE (what {vendor_name} offers):
 {json.dumps(vendor_intel, indent=2)}
 
-PROSPECT INTELLIGENCE:
+PROSPECT INTELLIGENCE (the target account - {prospect_name}):
 {json.dumps(prospect_intel, indent=2)}
 
-TASK:
-Create a strategic executive summary for the sales playbook.
+YOUR TASK:
+Create a strategic executive summary for this ABM sales playbook.
 
-This playbook will help sales reps at {vendor_name} engage with {prospect_name}.
+This playbook will help sales reps at {vendor_name} engage with and sell to {prospect_name}.
 
 Provide:
-1. Executive summary (2-3 paragraphs)
-2. Priority personas (ordered list of titles)
-3. Top 5 quick wins for sales team
-4. Success metrics to track
+1. Executive summary (2-3 paragraphs) - focused on how {vendor_name} can win {prospect_name}
+2. Priority personas (ordered list of titles at {prospect_name} to target)
+3. Top 5 quick wins for {vendor_name}'s sales team when engaging {prospect_name}
+4. Success metrics to track for this account
 """
 
         # Run orchestrator
@@ -122,6 +128,8 @@ Provide:
 def generate_email_sequences(step_input: StepInput) -> StepOutput:
     """
     Step 8b: Generate 4-touch email sequences for top 3 personas
+
+    ABM Context: Creates emails FROM vendor sales reps TO prospect stakeholders
     """
     try:
         # Get playbook summary from Step 8a
@@ -199,6 +207,8 @@ Day 1, Day 3, Day 7, Day 14.
 def generate_talk_tracks(step_input: StepInput) -> StepOutput:
     """
     Step 8c: Generate talk tracks for top 3 personas
+
+    ABM Context: Creates scripts for vendor sales reps calling prospect stakeholders
     """
     try:
         summary = step_input.get_step_content("generate_playbook_summary")
@@ -271,6 +281,8 @@ Create comprehensive talk tracks for this persona including:
 def generate_battle_cards(step_input: StepInput) -> StepOutput:
     """
     Step 8d: Generate battle cards (objection handling, competitive positioning)
+
+    ABM Context: Creates battle cards for vendor's sales team to overcome prospect objections
     """
     try:
         summary = step_input.get_step_content("generate_playbook_summary")

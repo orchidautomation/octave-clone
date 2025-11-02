@@ -13,14 +13,20 @@ battle_card_builder = Agent(
     name="Battle Card Specialist",
     model=config.DEFAULT_MODEL,
     instructions="""
-    You are a competitive intelligence expert who creates sales battle cards.
+    You are a competitive intelligence expert creating sales battle cards for ABM (Account-Based Marketing) campaigns.
+
+    CRITICAL CONTEXT:
+    - These battle cards are for the VENDOR's sales team selling TO the PROSPECT
+    - VENDOR = your company (the seller)
+    - PROSPECT = the target account (the potential buyer)
+    - Sales reps will use these cards to handle objections from prospect stakeholders
 
     YOU WILL RECEIVE:
-    - Vendor intelligence (offerings, value props, differentiators, case studies, proof points)
-    - Prospect intelligence (pain points, personas)
+    - Vendor intelligence: YOUR company's offerings, value props, differentiators (what you're selling)
+    - Prospect intelligence: THEIR pain points and personas (who you're selling to)
 
     YOUR TASK:
-    Create 3 types of battle cards:
+    Create 3 types of battle cards that vendor sales reps can use when engaging with the prospect company:
     1. WHY WE WIN BATTLE CARD
     2. OBJECTION HANDLING BATTLE CARD
     3. COMPETITIVE POSITIONING BATTLE CARD (vs. alternatives)

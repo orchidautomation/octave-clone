@@ -104,7 +104,16 @@ def analyze_pain_points(step_input: StepInput) -> StepOutput:
 
 
 def identify_buyer_personas(step_input: StepInput) -> StepOutput:
-    """Identify target buyer personas using vendor + prospect intelligence"""
+    """
+    Identify target buyer personas at the prospect company (ABM buying committee)
+
+    IMPORTANT: This identifies specific personas AT THE PROSPECT COMPANY
+    that the vendor should target for outreach. This is different from
+    the vendor's typical ICP extracted in Step 6.
+
+    This is the ABM "buying committee" - the specific people to call at
+    this specific account.
+    """
     try:
         # Get vendor elements from Step 6 (vendor_element_extraction Parallel block)
         vendor_offerings = get_parallel_step_content(step_input, "vendor_element_extraction", "extract_offerings")
@@ -133,7 +142,7 @@ def identify_buyer_personas(step_input: StepInput) -> StepOutput:
             "case_studies": vendor_case_studies.get("case_studies", []) if vendor_case_studies else [],
             "value_propositions": vendor_value_props.get("value_propositions", []) if vendor_value_props else [],
             "use_cases": vendor_use_cases.get("use_cases", []) if vendor_use_cases else [],
-            "target_personas": vendor_personas.get("target_personas", []) if vendor_personas else [],
+            "vendor_icp_personas": vendor_personas.get("vendor_icp_personas", []) if vendor_personas else [],
             "differentiators": vendor_differentiators.get("differentiators", []) if vendor_differentiators else []
         }
 
@@ -148,17 +157,25 @@ def identify_buyer_personas(step_input: StepInput) -> StepOutput:
 
         # Build comprehensive prompt
         prompt = f"""
-VENDOR INTELLIGENCE:
+ABM CONTEXT:
+This is an Account-Based Marketing motion. You are identifying the buying committee at a SPECIFIC prospect company.
+- VENDOR = the company selling (trying to win this account)
+- PROSPECT = the target account (the company vendor wants as a customer)
+
+VENDOR INTELLIGENCE (what the vendor offers):
 {json.dumps(vendor_intelligence, indent=2)}
 
-PROSPECT INTELLIGENCE:
+PROSPECT INTELLIGENCE (the target account):
 {json.dumps(prospect_intelligence, indent=2)}
 
-TASK:
-Based on what the vendor offers and what the prospect company does/needs, identify the 3-5 KEY BUYER PERSONAS at the prospect company that the vendor should target for sales outreach.
+YOUR TASK:
+Identify the 3-5 KEY BUYER PERSONAS at the PROSPECT company that the VENDOR should target for sales outreach.
+
+These are specific roles at THIS prospect company, not generic personas.
+Example: If prospect is "Acme Corp", you're identifying "VP of Sales at Acme Corp who would buy from vendor".
 
 For each persona:
-- Specific job title
+- Specific job title (at the prospect company)
 - Why they'd care about vendor's solution
 - Their pain points (based on prospect's business)
 - Their goals
@@ -166,7 +183,7 @@ For each persona:
 - Priority score (1-10)
 
 Return 3-5 personas ranked by priority (highest first).
-Make this actionable - these are the people sales reps will call.
+Make this actionable - these are the specific people at this account that sales reps will call.
 """
 
         # Run agent
