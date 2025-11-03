@@ -19,8 +19,8 @@ def validate_vendor_domain(step_input: StepInput) -> StepOutput:
     Returns:
         StepOutput with vendor_domain, vendor_urls, vendor_total_urls
     """
-    # Get vendor domain from workflow input
-    vendor_domain = step_input.input.get("vendor_domain")
+    # Get vendor domain from workflow input (Pydantic model from AgentOS)
+    vendor_domain = step_input.input.vendor_domain
 
     # Validate domain format
     is_valid, error_msg = validate_single_domain(vendor_domain, "vendor_domain")
@@ -54,8 +54,8 @@ def validate_prospect_domain(step_input: StepInput) -> StepOutput:
     Returns:
         StepOutput with prospect_domain, prospect_urls, prospect_total_urls
     """
-    # Get prospect domain from workflow input
-    prospect_domain = step_input.input.get("prospect_domain")
+    # Get prospect domain from workflow input (Pydantic model from AgentOS)
+    prospect_domain = step_input.input.prospect_domain
 
     # Validate domain format
     is_valid, error_msg = validate_single_domain(prospect_domain, "prospect_domain")

@@ -133,6 +133,7 @@ def normalize_domain(domain: str) -> str:
     - www.sendoso.com → https://sendoso.com
     - http://sendoso.com → https://sendoso.com
     - https://sendoso.com → https://sendoso.com (unchanged)
+    - HTTPS://WWW.SENDOSO.COM/ → https://sendoso.com (uppercase + trailing slash)
 
     Args:
         domain: Domain string in any format
@@ -146,11 +147,15 @@ def normalize_domain(domain: str) -> str:
     if not domain or not isinstance(domain, str):
         raise ValueError(f"Invalid domain: {domain}")
 
-    domain = domain.strip()
+    # CRITICAL FIX: Lowercase for AgentOS compatibility (handles HTTPS://)
+    domain = domain.strip().lower()
 
     # After stripping, check if empty
     if not domain:
         raise ValueError(f"Invalid domain: empty or whitespace only")
+
+    # Remove trailing slashes (handles https://domain.com/)
+    domain = domain.rstrip('/')
 
     # Remove www. prefix if present
     if domain.startswith('www.'):
