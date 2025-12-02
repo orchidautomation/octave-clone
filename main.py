@@ -237,100 +237,103 @@ def main():
             json.dump(metadata, f, indent=2)
 
         # Save Step 6: Vendor element extraction (all 8 extractors)
-        try:
-            step6_outputs = {}
-            extractor_names = [
-                "extract_offerings",
-                "extract_case_studies",
-                "extract_proof_points",
-                "extract_value_props",
-                "extract_customers",
-                "extract_use_cases",
-                "extract_personas",
-                "extract_differentiators"
-            ]
+        # Create subdirectory for Step 6 outputs
+        step6_dir = f"{run_dir}/step6_vendor_extraction"
+        os.makedirs(step6_dir, exist_ok=True)
 
-            for extractor_name in extractor_names:
-                try:
-                    content = result.get_parallel_step_content("vendor_element_extraction", extractor_name)
-                    if content:
-                        step6_outputs[extractor_name] = content
-                except:
-                    pass
+        step6_extractors = {
+            "extract_offerings": "offerings.json",
+            "extract_case_studies": "case_studies.json",
+            "extract_proof_points": "proof_points.json",
+            "extract_value_props": "value_props.json",
+            "extract_customers": "customers.json",
+            "extract_use_cases": "use_cases.json",
+            "extract_personas": "personas.json",
+            "extract_differentiators": "differentiators.json"
+        }
 
-            if step6_outputs:
-                with open(f"{run_dir}/step6_vendor_extraction.json", "w") as f:
-                    json.dump(step6_outputs, f, indent=2)
-        except Exception as e:
-            print(f"Warning: Could not save Step 6 output: {e}")
+        for extractor_name, filename in step6_extractors.items():
+            try:
+                content = result.get_parallel_step_content("vendor_element_extraction", extractor_name)
+                with open(f"{step6_dir}/{filename}", "w") as f:
+                    json.dump(content if content else {}, f, indent=2)
+            except Exception as e:
+                print(f"Warning: Could not save {filename}: {e}")
+                with open(f"{step6_dir}/{filename}", "w") as f:
+                    json.dump({"error": str(e)}, f, indent=2)
 
         # Save Step 7: Prospect analysis (all 3 analysts)
-        try:
-            step7_outputs = {}
+        # Create subdirectory for Step 7 outputs
+        step7_dir = f"{run_dir}/step7_prospect_analysis"
+        os.makedirs(step7_dir, exist_ok=True)
 
-            # Step 7a: Parallel analysts
-            analyst_names = ["analyze_company", "analyze_pain_points"]
-            for analyst_name in analyst_names:
-                try:
-                    content = result.get_parallel_step_content("prospect_context_analysis", analyst_name)
-                    if content:
-                        step7_outputs[analyst_name] = content
-                except:
-                    pass
+        # Step 7a: Parallel analysts
+        step7_parallel_analysts = {
+            "analyze_company": "company_profile.json",
+            "analyze_pain_points": "pain_points.json"
+        }
 
-            # Step 7b: Buyer personas (sequential)
+        for analyst_name, filename in step7_parallel_analysts.items():
             try:
-                personas_content = result.get_step_content("identify_buyer_personas")
-                if personas_content:
-                    step7_outputs["identify_buyer_personas"] = personas_content
-            except:
-                pass
+                content = result.get_parallel_step_content("prospect_context_analysis", analyst_name)
+                with open(f"{step7_dir}/{filename}", "w") as f:
+                    json.dump(content if content else {}, f, indent=2)
+            except Exception as e:
+                print(f"Warning: Could not save {filename}: {e}")
+                with open(f"{step7_dir}/{filename}", "w") as f:
+                    json.dump({"error": str(e)}, f, indent=2)
 
-            if step7_outputs:
-                with open(f"{run_dir}/step7_prospect_analysis.json", "w") as f:
-                    json.dump(step7_outputs, f, indent=2)
+        # Step 7b: Buyer personas (sequential)
+        try:
+            personas_content = result.get_step_content("identify_buyer_personas")
+            with open(f"{step7_dir}/buyer_personas.json", "w") as f:
+                json.dump(personas_content if personas_content else {}, f, indent=2)
         except Exception as e:
-            print(f"Warning: Could not save Step 7 output: {e}")
+            print(f"Warning: Could not save buyer_personas.json: {e}")
+            with open(f"{step7_dir}/buyer_personas.json", "w") as f:
+                json.dump({"error": str(e)}, f, indent=2)
 
         # Save Step 8: Playbook generation (all components)
+        # Create subdirectory for Step 8 outputs
+        step8_dir = f"{run_dir}/step8_playbook_generation"
+        os.makedirs(step8_dir, exist_ok=True)
+
+        # Step 8a: Summary (sequential)
         try:
-            step8_outputs = {}
-
-            # Step 8a: Summary
-            try:
-                summary = result.get_step_content("generate_playbook_summary")
-                if summary:
-                    step8_outputs["playbook_summary"] = summary
-            except:
-                pass
-
-            # Step 8b-d: Parallel components
-            component_names = [
-                "generate_email_sequences",
-                "generate_talk_tracks",
-                "generate_battle_cards"
-            ]
-            for component_name in component_names:
-                try:
-                    content = result.get_parallel_step_content("playbook_component_generation", component_name)
-                    if content:
-                        step8_outputs[component_name] = content
-                except:
-                    pass
-
-            # Step 8e: Final assembly
-            try:
-                final_playbook = result.get_step_content("assemble_final_playbook")
-                if final_playbook:
-                    step8_outputs["final_playbook"] = final_playbook
-            except:
-                pass
-
-            if step8_outputs:
-                with open(f"{run_dir}/step8_playbook_generation.json", "w") as f:
-                    json.dump(step8_outputs, f, indent=2)
+            summary = result.get_step_content("generate_playbook_summary")
+            with open(f"{step8_dir}/playbook_summary.json", "w") as f:
+                json.dump(summary if summary else {}, f, indent=2)
         except Exception as e:
-            print(f"Warning: Could not save Step 8 output: {e}")
+            print(f"Warning: Could not save playbook_summary.json: {e}")
+            with open(f"{step8_dir}/playbook_summary.json", "w") as f:
+                json.dump({"error": str(e)}, f, indent=2)
+
+        # Step 8b-d: Parallel components
+        step8_parallel_components = {
+            "generate_email_sequences": "email_sequences.json",
+            "generate_talk_tracks": "talk_tracks.json",
+            "generate_battle_cards": "battle_cards.json"
+        }
+
+        for component_name, filename in step8_parallel_components.items():
+            try:
+                content = result.get_parallel_step_content("playbook_component_generation", component_name)
+                with open(f"{step8_dir}/{filename}", "w") as f:
+                    json.dump(content if content else {}, f, indent=2)
+            except Exception as e:
+                print(f"Warning: Could not save {filename}: {e}")
+                with open(f"{step8_dir}/{filename}", "w") as f:
+                    json.dump({"error": str(e)}, f, indent=2)
+
+        # Step 8e: Final assembly (sequential)
+        try:
+            final_playbook = result.get_step_content("assemble_final_playbook")
+            with open(f"{step8_dir}/final_playbook.json", "w") as f:
+                json.dump(final_playbook if final_playbook else {}, f, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not save final_playbook.json: {e}")
+            with open(f"{step8_dir}/final_playbook.json", "w") as f:
+                json.dump({"error": str(e)}, f, indent=2)
 
         # Also save the complete final output for backwards compatibility
         output_filename = f"{run_dir}/complete_output.json"
@@ -346,9 +349,9 @@ def main():
         content = result.content
         print(f"\n📁 All outputs saved to: {run_dir}/")
         print(f"   • metadata.json - Run information")
-        print(f"   • step6_vendor_extraction.json - Vendor GTM elements")
-        print(f"   • step7_prospect_analysis.json - Prospect insights")
-        print(f"   • step8_playbook_generation.json - Playbook components")
+        print(f"   • step6_vendor_extraction/ - Vendor GTM elements (8 files)")
+        print(f"   • step7_prospect_analysis/ - Prospect insights (3 files)")
+        print(f"   • step8_playbook_generation/ - Playbook components (5 files)")
         print(f"   • complete_output.json - Final assembled output\n")
         print("📊 Pipeline Summary:")
 
