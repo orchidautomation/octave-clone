@@ -104,6 +104,9 @@ def generate_playbook_summary(step_input: StepInput) -> StepOutput:
         vendor_name = vendor_intel.get("offerings", [{}])[0].get("name", "the vendor") if vendor_intel.get("offerings") else "the vendor"
         prospect_name = prospect_intel["company_profile"].get("company_name", "the prospect company")
 
+        # Extract exact persona titles for orchestrator to use
+        available_persona_titles = [p["persona_title"] for p in target_personas]
+
         prompt = f"""
 ABM CONTEXT:
 This is an Account-Based Marketing playbook for a specific account.
@@ -116,6 +119,22 @@ VENDOR INTELLIGENCE (what {vendor_name} offers):
 
 PROSPECT INTELLIGENCE (the target account - {prospect_name}):
 {json.dumps(prospect_intel, indent=2)}
+
+AVAILABLE PERSONA TITLES (from prospect analysis):
+{json.dumps(available_persona_titles, indent=2)}
+
+CRITICAL INSTRUCTION FOR PRIORITY PERSONAS:
+When providing priority_personas, you MUST use the EXACT titles from the
+"AVAILABLE PERSONA TITLES" list above. DO NOT rephrase, abbreviate, or
+modify these titles in any way.
+
+Examples:
+- If available title is "VP / Head of Sales (or Chief Revenue Officer)",
+  use EXACTLY that string
+- DO NOT simplify to "VP of Sales" or "Head of Sales"
+
+Your priority_personas list must contain exact string matches from the
+available titles.
 
 YOUR TASK:
 Create a strategic executive summary for this ABM sales playbook.

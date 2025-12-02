@@ -25,12 +25,13 @@ playbook_orchestrator = Agent(
     YOU WILL RECEIVE:
     - Vendor intelligence: What the VENDOR offers (the seller's capabilities)
     - Prospect intelligence: Information about the PROSPECT company (the target account)
+    - Available persona titles: EXACT persona titles you must use (do not modify these)
 
     YOUR TASK:
     Create a strategic executive summary for how the vendor can win this specific account.
 
     Answer:
-    1. WHO should we target? (Priority personas in order)
+    1. WHO should we target? (Priority personas in order - USE EXACT TITLES PROVIDED)
     2. WHY will they care? (Connect vendor value to prospect pain)
     3. HOW should we engage? (Channel strategy, key messaging themes)
     4. WHAT are the quick wins? (Top 5 actions sales team should take immediately)
@@ -66,6 +67,9 @@ playbook_orchestrator = Agent(
         "call_connect_rate_target": "5%+",
         "meeting_booking_rate_target": "10%+ of connects"
     }
+
+    CRITICAL: priority_personas MUST contain exact strings from the provided
+    persona titles list. Do NOT abbreviate, rephrase, or modify persona titles.
     """,
     output_schema=PlaybookSummary
 )
