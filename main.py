@@ -219,6 +219,24 @@ def main():
             print("\nNo result returned from workflow.")
             sys.exit(1)
 
+        # Helper functions to extract step content from WorkflowCompletedEvent
+        def get_step_content_by_name(step_results, step_name):
+            """Find and return content from a step by name"""
+            for step_output in step_results:
+                if step_output.step_name == step_name:
+                    return step_output.content
+            return None
+
+        def get_parallel_substep_content(step_results, parallel_step_name, substep_name):
+            """Extract content from a specific substep within a parallel step"""
+            for step_output in step_results:
+                if step_output.step_name == parallel_step_name and step_output.step_type == "Parallel":
+                    if hasattr(step_output, 'steps') and step_output.steps:
+                        for sub_step in step_output.steps:
+                            if sub_step.step_name == substep_name:
+                                return sub_step.content
+            return None
+
         # Save results in organized directory structure
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         run_dir = f"output/runs/{timestamp}"
@@ -254,7 +272,7 @@ def main():
 
         for extractor_name, filename in step6_extractors.items():
             try:
-                content = result.get_parallel_step_content("vendor_element_extraction", extractor_name)
+                content = get_parallel_substep_content(result.step_results, "vendor_element_extraction", extractor_name)
                 with open(f"{step6_dir}/{filename}", "w") as f:
                     json.dump(content if content else {}, f, indent=2)
             except Exception as e:
@@ -275,7 +293,7 @@ def main():
 
         for analyst_name, filename in step7_parallel_analysts.items():
             try:
-                content = result.get_parallel_step_content("prospect_context_analysis", analyst_name)
+                content = get_parallel_substep_content(result.step_results, "prospect_context_analysis", analyst_name)
                 with open(f"{step7_dir}/{filename}", "w") as f:
                     json.dump(content if content else {}, f, indent=2)
             except Exception as e:
@@ -285,7 +303,7 @@ def main():
 
         # Step 7b: Buyer personas (sequential)
         try:
-            personas_content = result.get_step_content("identify_buyer_personas")
+            personas_content = get_step_content_by_name(result.step_results, "identify_buyer_personas")
             with open(f"{step7_dir}/buyer_personas.json", "w") as f:
                 json.dump(personas_content if personas_content else {}, f, indent=2)
         except Exception as e:
@@ -300,7 +318,7 @@ def main():
 
         # Step 8a: Summary (sequential)
         try:
-            summary = result.get_step_content("generate_playbook_summary")
+            summary = get_step_content_by_name(result.step_results, "generate_playbook_summary")
             with open(f"{step8_dir}/playbook_summary.json", "w") as f:
                 json.dump(summary if summary else {}, f, indent=2)
         except Exception as e:
@@ -317,7 +335,7 @@ def main():
 
         for component_name, filename in step8_parallel_components.items():
             try:
-                content = result.get_parallel_step_content("playbook_component_generation", component_name)
+                content = get_parallel_substep_content(result.step_results, "playbook_component_generation", component_name)
                 with open(f"{step8_dir}/{filename}", "w") as f:
                     json.dump(content if content else {}, f, indent=2)
             except Exception as e:
@@ -327,7 +345,7 @@ def main():
 
         # Step 8e: Final assembly (sequential)
         try:
-            final_playbook = result.get_step_content("assemble_final_playbook")
+            final_playbook = get_step_content_by_name(result.step_results, "assemble_final_playbook")
             with open(f"{step8_dir}/final_playbook.json", "w") as f:
                 json.dump(final_playbook if final_playbook else {}, f, indent=2)
         except Exception as e:
