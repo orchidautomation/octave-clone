@@ -11,6 +11,39 @@ from agents.playbook_specialists.battle_card_builder import battle_card_builder
 from utils.workflow_helpers import get_parallel_step_content, create_error_response, create_success_response
 import json
 from datetime import datetime
+from difflib import SequenceMatcher
+
+
+def find_matching_persona(persona_title: str, all_personas: list, threshold: float = 0.7) -> dict:
+    """
+    Find a persona using fuzzy string matching.
+
+    Args:
+        persona_title: The persona title to search for
+        all_personas: List of persona dictionaries with 'persona_title' field
+        threshold: Similarity threshold (0-1), default 0.7 (70% match)
+
+    Returns:
+        Matching persona dict, or None if no match above threshold
+    """
+    best_match = None
+    best_score = 0
+
+    for persona in all_personas:
+        # Calculate similarity ratio
+        similarity = SequenceMatcher(None,
+                                    persona_title.lower(),
+                                    persona["persona_title"].lower()).ratio()
+
+        if similarity > best_score:
+            best_score = similarity
+            best_match = persona
+
+    # Return match only if above threshold
+    if best_score >= threshold:
+        return best_match
+
+    return None
 
 
 def generate_playbook_summary(step_input: StepInput) -> StepOutput:
@@ -151,17 +184,19 @@ def generate_email_sequences(step_input: StepInput) -> StepOutput:
         sequences = []
 
         for persona_title in priority_personas:
-            # Find matching persona
-            persona_data = next(
-                (p for p in all_personas if p["persona_title"] == persona_title),
-                None
-            )
+            # Find matching persona using fuzzy matching
+            persona_data = find_matching_persona(persona_title, all_personas)
 
             if not persona_data:
-                print(f"⚠️  Persona data not found for {persona_title}")
+                print(f"⚠️  Persona data not found for {persona_title} (no fuzzy match)")
                 continue
 
-            print(f"✉️  Generating 4-touch email sequence for {persona_title}...")
+            # Show matched title if different from searched title
+            matched_title = persona_data["persona_title"]
+            if matched_title != persona_title:
+                print(f"✉️  Generating 4-touch email sequence for {persona_title} (matched: {matched_title})...")
+            else:
+                print(f"✉️  Generating 4-touch email sequence for {persona_title}...")
 
             prompt = f"""
 TARGET PERSONA:
@@ -227,15 +262,19 @@ def generate_talk_tracks(step_input: StepInput) -> StepOutput:
         talk_tracks = []
 
         for persona_title in priority_personas:
-            persona_data = next(
-                (p for p in all_personas if p["persona_title"] == persona_title),
-                None
-            )
+            # Find matching persona using fuzzy matching
+            persona_data = find_matching_persona(persona_title, all_personas)
 
             if not persona_data:
+                print(f"⚠️  Persona data not found for {persona_title} (no fuzzy match)")
                 continue
 
-            print(f"🎯 Generating talk tracks for {persona_title}...")
+            # Show matched title if different from searched title
+            matched_title = persona_data["persona_title"]
+            if matched_title != persona_title:
+                print(f"🎯 Generating talk tracks for {persona_title} (matched: {matched_title})...")
+            else:
+                print(f"🎯 Generating talk tracks for {persona_title}...")
 
             prompt = f"""
 TARGET PERSONA:
