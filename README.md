@@ -1,4 +1,4 @@
-# Octave Clone - Complete Sales Intelligence Pipeline
+# Playbook AI - Complete Sales Intelligence Pipeline
 
 An intelligent sales playbook generator that analyzes vendor and prospect websites to extract GTM intelligence and generate production-ready campaign strategies in minutes.
 
