@@ -2,22 +2,36 @@ Business Source License 1.1
 
 Parameters
 
-Licensor:             Orchid Automation / Brandon Guerrero
-Licensed Work:        Playbook AI
-                      The Licensed Work is (c) 2025 Orchid Automation
+Licensor:             Orchid Automation LLC / Brandon Guerrero
+Licensed Work:        Playbook AI v1.0.0
+                      The Licensed Work is (c) 2025 Orchid Automation LLC.
+                      All rights reserved.
+
+Initial Release Date: December 9, 2025
 
 Additional Use Grant: You may make production use of the Licensed Work for
-                      internal business purposes only. Any use that offers
-                      the Licensed Work to third parties as a service, or
-                      incorporates the Licensed Work into a commercial product
-                      or service for sale, requires a separate commercial
-                      license from the Licensor.
+                      your own internal business purposes only, provided that
+                      such use does not include any of the following:
 
-Change Date:          Four years from the date of each release
+                      (a) Offering the Licensed Work to third parties as a
+                          hosted or managed service (SaaS, PaaS, or similar);
+                      (b) Incorporating the Licensed Work into a commercial
+                          product or service offered for sale or license;
+                      (c) Reselling, sublicensing, or white-labeling the
+                          Licensed Work or derivative works thereof;
+                      (d) Using the Licensed Work to provide services that
+                          compete with the Licensor's offerings.
+
+                      Any use not expressly permitted above requires a separate
+                      commercial license from the Licensor.
+
+Change Date:          December 9, 2029
 
 Change License:       Apache License, Version 2.0
 
-For commercial licensing inquiries, contact: brandon@orchidautomation.com
+For commercial licensing inquiries:
+  Email: brandon@orchidautomation.com
+  Web:   https://orchidautomation.com
 
 -----------------------------------------------------------------------------
 

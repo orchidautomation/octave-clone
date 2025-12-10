@@ -386,24 +386,32 @@ All normalized to: `https://sendoso.com`
 
 ## License
 
+Copyright (c) 2025 Orchid Automation LLC. All rights reserved.
+
 This project is licensed under the **Business Source License 1.1** (BSL 1.1).
 
 ### What this means:
 
-- **Free for**: Development, testing, personal use, internal business use
-- **Requires commercial license for**:
-  - Offering this as a service to third parties
-  - Incorporating into commercial products for sale
-  - Reselling or white-labeling
-- **Converts to Apache 2.0**: Four years after each release
+| Use Case | Allowed? |
+|----------|----------|
+| Development & testing | ✅ Free |
+| Personal use | ✅ Free |
+| Internal business use | ✅ Free |
+| Offering as SaaS/hosted service | ❌ Commercial license required |
+| Incorporating into products for sale | ❌ Commercial license required |
+| Reselling or white-labeling | ❌ Commercial license required |
+| Competing services | ❌ Commercial license required |
+
+**Converts to Apache 2.0**: December 9, 2029
 
 ### Commercial Licensing
 
-For production commercial use, SaaS offerings, or enterprise deployments, contact:
+For production commercial use, SaaS offerings, or enterprise deployments:
 
-**Brandon Guerrero**
-Orchid Automation
+**Orchid Automation LLC**
+Brandon Guerrero
 Email: brandon@orchidautomation.com
+Web: https://orchidautomation.com
 
 See [LICENSE](LICENSE) for full terms.
 
