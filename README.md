@@ -64,12 +64,12 @@ An intelligent sales playbook generator that analyzes vendor and prospect websit
 Run the complete Phase 1-4 workflow via command line:
 
 ```bash
-python main.py https://octavehq.com https://sendoso.com
+python main.py https://gong.io https://sendoso.com
 ```
 
-This executes all 12 steps and saves the complete playbook output to `phase1_output_[timestamp].json`.
+This executes all 12 steps and saves the complete playbook output to `playbook_output_[timestamp].json`.
 
-**Domain flexibility**: Accepts any format (`octavehq.com`, `www.octavehq.com`, or `https://octavehq.com`)
+**Domain flexibility**: Accepts any format (`gong.io`, `www.gong.io`, or `https://gong.io`)
 
 ### API Usage (Production Deployment)
 
@@ -80,16 +80,16 @@ python serve.py
 ```
 
 Access the API at:
-- **API Endpoint**: `POST http://localhost:7777/workflows/playbook-ai-sales-intelligence-pipeline/runs`
-- **Control Plane UI**: `http://localhost:7777` (real-time workflow monitoring)
-- **OpenAPI Docs**: `http://localhost:7777/docs` (interactive API documentation)
+- **API Endpoint**: `POST http://localhost:8080/workflows/playbook-ai-sales-intelligence-pipeline/runs`
+- **Control Plane UI**: `http://localhost:8080` (real-time workflow monitoring)
+- **OpenAPI Docs**: `http://localhost:8080/docs` (interactive API documentation)
 
 **Example API Call**:
 ```bash
-curl -X POST 'http://localhost:7777/workflows/playbook-ai-sales-intelligence-pipeline/runs' \
+curl -X POST 'http://localhost:8080/workflows/playbook-ai-sales-intelligence-pipeline/runs' \
   -H 'Content-Type: application/json' \
   -d '{
-    "vendor_domain": "octavehq.com",
+    "vendor_domain": "gong.io",
     "prospect_domain": "sendoso.com"
   }'
 ```
@@ -98,9 +98,7 @@ curl -X POST 'http://localhost:7777/workflows/playbook-ai-sales-intelligence-pip
 - Streaming support (Server-Sent Events)
 - Input validation with Pydantic
 - Health check endpoint (`/health`)
-- Production deployment guides (Docker, AWS, GCP, Azure)
-
-📚 **See [API Serving Guide](docs/API_SERVING_GUIDE.md) for complete documentation and deployment instructions.**
+- Docker and Railway deployment ready
 
 ### What Happens
 
@@ -143,14 +141,14 @@ The complete workflow executes **12 steps across 4 phases**:
 
 ### Output
 
-Results are saved to `phase1_output_[timestamp].json` containing complete Phase 1-4 intelligence:
+Results are saved to `playbook_output_[timestamp].json` containing complete Phase 1-4 intelligence:
 
 ```json
 {
   "phase1_scraped_content": {
     "vendor_content": {
-      "https://octavehq.com/about": "markdown content...",
-      "https://octavehq.com/platform": "markdown content..."
+      "https://gong.io/about": "markdown content...",
+      "https://gong.io/platform": "markdown content..."
     },
     "prospect_content": {
       "https://sendoso.com/about": "markdown content..."
@@ -202,7 +200,7 @@ Results are saved to `phase1_output_[timestamp].json` containing complete Phase 
 
   "phase4_sales_playbook": {
     "playbook_summary": {
-      "vendor_name": "Octave",
+      "vendor_name": "Gong",
       "prospect_name": "Sendoso",
       "top_value_propositions": [...],
       "recommended_approach": "..."
@@ -246,65 +244,46 @@ Results are saved to `phase1_output_[timestamp].json` containing complete Phase 
 ### Project Structure
 
 ```
-octave-clone/
+playbook_ai/
 ├── config.py                           # Configuration and environment variables
 ├── main.py                             # CLI entry point (runs complete Phase 1-4)
 ├── serve.py                            # AgentOS API server (production deployment)
-├── workflow.py                         # 4 workflow definitions (phase1, phase1_2, phase1_2_3, phase1_2_3_4)
+├── workflow.py                         # Workflow definition
 │
 ├── agents/                             # 19 Specialist AI Agents
 │   ├── homepage_analyst.py             # Homepage content analyzer
 │   ├── url_prioritizer.py              # Strategic URL selector
-│   │
 │   ├── vendor_specialists/             # Phase 2: 8 Parallel Specialists
-│   │   ├── offerings_extractor.py
-│   │   ├── case_study_extractor.py
-│   │   ├── proof_points_extractor.py
-│   │   ├── value_prop_extractor.py
-│   │   ├── customer_extractor.py
-│   │   ├── use_case_extractor.py
-│   │   ├── persona_extractor.py
-│   │   └── differentiator_extractor.py
-│   │
 │   ├── prospect_specialists/           # Phase 3: 3 Prospect Analysts
-│   │   ├── company_analyst.py
-│   │   ├── pain_point_analyst.py
-│   │   └── buyer_persona_analyst.py
-│   │
 │   └── playbook_specialists/           # Phase 4: 4 Playbook Specialists
-│       ├── playbook_orchestrator.py
-│       ├── email_sequence_writer.py
-│       ├── talk_track_creator.py
-│       └── battle_card_builder.py
 │
-├── steps/                              # 8 Workflow Steps (12 total execution steps)
-│   ├── step1_domain_validation.py      # Phase 1: Maps domains (2 parallel validators)
-│   ├── step2_homepage_scraping.py      # Phase 1: Scrapes homepages (2 parallel scrapers)
-│   ├── step3_initial_analysis.py       # Phase 1: AI analysis (2 parallel analyzers)
-│   ├── step4_url_prioritization.py     # Phase 1: URL selection (1 AI strategist)
-│   ├── step5_batch_scraping.py         # Phase 1: Batch scraping (1 scraper)
-│   ├── step6_vendor_extraction.py      # Phase 2: 8 parallel vendor specialists
-│   ├── step7_prospect_analysis.py      # Phase 3: 3 prospect analysts (2 parallel + 1 sequential)
-│   └── step8_playbook_generation.py    # Phase 4: 5-step playbook creation
+├── steps/                              # 8 Workflow Steps
+│   ├── step1_domain_validation.py      # Maps domains (2 parallel validators)
+│   ├── step2_homepage_scraping.py      # Scrapes homepages (2 parallel scrapers)
+│   ├── step3_initial_analysis.py       # AI analysis (2 parallel analyzers)
+│   ├── step4_url_prioritization.py     # URL selection (1 AI strategist)
+│   ├── step5_batch_scraping.py         # Batch scraping (1 scraper)
+│   ├── step6_vendor_extraction.py      # 8 parallel vendor specialists
+│   ├── step7_prospect_analysis.py      # 3 prospect analysts
+│   └── step8_playbook_generation.py    # 5-step playbook creation
 │
-├── models/                             # 6 Pydantic Model Files (Type-Safe)
-│   ├── common.py                       # Source model
+├── models/                             # Pydantic Models (Type-Safe)
 │   ├── workflow_input.py               # Input validation with domain normalization
-│   ├── vendor_elements.py              # 8 vendor element models
+│   ├── vendor_elements.py              # Vendor element models
 │   ├── prospect_intelligence.py        # Prospect analysis models
-│   ├── playbook.py                     # 6 sequencer-ready playbook models
-│   └── __init__.py
+│   └── playbook.py                     # Sequencer-ready playbook models
 │
 ├── utils/                              # Helper Functions
-│   ├── firecrawl_helpers.py            # 3 Firecrawl SDK wrappers
-│   └── workflow_helpers.py             # 10+ validation and error handling helpers
+│   ├── firecrawl_helpers.py            # Firecrawl SDK wrappers
+│   └── workflow_helpers.py             # Validation and error handling
 │
-└── docs/                               # Comprehensive Documentation
-    ├── API_SERVING_GUIDE.md            # Complete API documentation (387 lines)
-    ├── AGENTOS_IMPLEMENTATION_GUIDE.md # Production deployment guide (1,297 lines)
-    └── phases/                         # Phase completion summaries
-        ├── PHASE4_COMPLETION_SUMMARY.md
-        └── ...
+├── scripts/                            # Deployment Scripts
+│   ├── entrypoint.sh                   # Docker entrypoint
+│   └── railway_up.sh                   # One-click Railway deployment
+│
+├── Dockerfile                          # Container build
+├── compose.yaml                        # Local development with pgvector
+└── railway.json                        # Railway platform config
 ```
 
 ### Context Passing Pattern
@@ -332,18 +311,23 @@ Edit `config.py` or set environment variables:
 - `BATCH_SCRAPE_TIMEOUT`: Timeout in seconds for batch scraping (default: 180)
 - `MAX_URLS_TO_MAP`: Maximum URLs to discover per domain (default: 100)
 
-## Testing
+## Deployment
 
-### Test Individual Steps
+### Local Development
 
 ```bash
-python tests/test_phase1.py
+# With Docker Compose (includes pgvector database)
+docker compose up
+
+# Or run directly
+python serve.py
 ```
 
-### Test End-to-End
+### Railway Deployment
 
 ```bash
-python main.py https://octavehq.com https://sendoso.com
+# One-click deployment (requires Railway CLI)
+./scripts/railway_up.sh
 ```
 
 ## Production Features
@@ -385,28 +369,6 @@ Flexible input handling for various domain formats:
 - ✅ `HTTPS://WWW.SENDOSO.COM/`
 
 All normalized to: `https://sendoso.com`
-
-## Documentation
-
-### Comprehensive Guides
-- **[API Serving Guide](docs/API_SERVING_GUIDE.md)** (387 lines)
-  - Complete API documentation
-  - Request/response formats
-  - Production deployment options (Docker, AWS, GCP, Azure)
-  - Security middleware (JWT, CORS, rate limiting)
-  - Monitoring and health checks
-
-- **[AgentOS Implementation Guide](docs/AGENTOS_IMPLEMENTATION_GUIDE.md)** (1,297 lines)
-  - Architecture deep dive
-  - Workflow patterns and best practices
-  - Step-by-step implementation walkthrough
-  - Troubleshooting and debugging
-  - Production deployment checklist
-
-### Phase Completion Summaries
-- **Phase 2 Completion**: Vendor extraction implementation
-- **Phase 3 Completion**: Prospect analysis implementation
-- **Phase 4 Completion**: Playbook generation (November 2, 2025)
 
 ## Troubleshooting
 
