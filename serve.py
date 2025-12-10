@@ -12,7 +12,7 @@ API Endpoints:
     GET  /config (AgentOS configuration)
 
 Example API Call:
-    curl -X POST 'http://localhost:7777/workflows/playbook-ai-sales-intelligence-pipeline/runs' \
+    curl -X POST 'http://localhost:8080/workflows/playbook-ai-sales-intelligence-pipeline/runs' \
       -H 'Content-Type: application/json' \
       -d '{
         "vendor_domain": "octavehq.com",
@@ -20,7 +20,7 @@ Example API Call:
       }'
 
 Control Plane UI:
-    http://localhost:7777
+    http://localhost:8080
 """
 
 from agno.os import AgentOS
@@ -53,13 +53,13 @@ if __name__ == "__main__":
     print("=" * 80)
     print("\n🚀 Starting AgentOS API Server...")
     print(f"\n📡 API Endpoint:")
-    print(f"   POST http://localhost:7777/workflows/playbook-ai-sales-intelligence-pipeline/runs")
+    print(f"   POST http://localhost:8080/workflows/playbook-ai-sales-intelligence-pipeline/runs")
     print(f"\n📚 Documentation:")
-    print(f"   http://localhost:7777/docs")
+    print(f"   http://localhost:8080/docs")
     print(f"\n🎛️  Control Plane UI:")
-    print(f"   http://localhost:7777")
+    print(f"   http://localhost:8080")
     print(f"\n💊 Health Check:")
-    print(f"   http://localhost:7777/health")
+    print(f"   http://localhost:8080/health")
     print("\n" + "=" * 80 + "\n")
 
-    agent_os.serve(app="serve:app", reload=True, port=7777)
+    agent_os.serve(app="serve:app", reload=True, port=8080)
